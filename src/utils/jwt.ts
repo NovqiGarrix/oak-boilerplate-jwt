@@ -1,10 +1,6 @@
-import { createJWT, decodeBase64, encodeBase64, verifyJWT } from '@deps';
-import { RedisClient } from '@utils/redisClient.ts';
-import logger from '@utils/logger.ts';
+import { createJWT, encodeBase64, verifyJWT, configAsync, decodeBase64 } from '@deps';
 
-export interface JWTPayload {
-    [propName: string]: unknown
-}
+const env = await configAsync();
 
 function str2ab(str: string) {
     const buf = new ArrayBuffer(str.length);
@@ -15,9 +11,12 @@ function str2ab(str: string) {
     return buf;
 }
 
+export interface JWTPayload {
+    [propName: string]: unknown
+}
+
 class JsonWebToken {
     public key: CryptoKey | undefined = undefined;
-    public redisKey = "oak-server-w-jwt";
 
     /**
      * Generate CryptoKey
@@ -31,23 +30,6 @@ class JsonWebToken {
             },
             true, ["sign", "verify"]
         )
-
-    }
-
-    /**
-     * @description Generate a CryptoKey and export it to be stored in Redis
-     */
-    async exportKey(): Promise<void> {
-        const decoder = new TextDecoder();
-
-        const redisClient = await RedisClient.getClient();
-        const key = await this.generateKey();
-
-        const exportedKey = await crypto.subtle.exportKey("raw", key);
-        const exportedString = decoder.decode(exportedKey);
-        const exportedBase64 = encodeBase64(exportedString);
-
-        await redisClient.set(this.redisKey, exportedBase64);
     }
 
     /**
@@ -55,9 +37,7 @@ class JsonWebToken {
      * This function also will set the CryptoKey to the class variable property.
      */
     async setKey(): Promise<void> {
-        const redisClient = await RedisClient.getClient();
-        const exportedKey = await redisClient.get(this.redisKey);
-
+        const exportedKey = Deno.env.get("JWT_KEY") || env.JWT_KEY;
         if (!exportedKey) throw new Error("JWT Key hasn't initialized yet!");
 
         const decoder = new TextDecoder();
@@ -68,8 +48,21 @@ class JsonWebToken {
             name: "HMAC",
             hash: "SHA-512"
         }, true, ["sign", "verify"]);
+    }
 
-        logger.success(`🔐 JWT KEY INITIALIZED! 🔑`);
+    /**
+     * @description Generate a CryptoKey and export it to be stored in Redis
+     */
+    async exportKey(): Promise<string> {
+        const decoder = new TextDecoder();
+
+        const key = await this.generateKey();
+
+        const exportedKey = await crypto.subtle.exportKey("raw", key);
+        const exportedString = decoder.decode(exportedKey);
+        const exportedBase64 = encodeBase64(exportedString);
+
+        return exportedBase64;
     }
 
     /**

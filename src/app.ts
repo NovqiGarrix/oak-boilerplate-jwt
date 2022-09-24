@@ -3,6 +3,7 @@ import { Application, Router, configAsync, oakCors } from '@deps';
 
 import V1Router from '@routers/v1/index.ts';
 import requestLogger from '@middlewares/requestLogger.ts';
+import jwt from './utils/jwt.ts';
 
 const env = await configAsync();
 
@@ -26,11 +27,12 @@ export default function createServer(): Application<Record<string, any>> {
     // Logger
     app.use(requestLogger);
 
-    router.get("/", ({ response }) => {
+    router.get("/", async ({ response }) => {
         response.status = 200;
         response.body = {
             data: "Hello, World",
-            error: null
+            error: null,
+            jwt: await jwt.sign({ data: "Hello, World" }, 60)
         }
     });
 

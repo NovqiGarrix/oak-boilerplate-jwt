@@ -1,16 +1,8 @@
-import { fail, describe, it, expect, equal, afterAll, beforeAll } from '@testDeps';
+import { fail, describe, it, expect, equal, beforeAll } from '@testDeps';
 
 import jwt from '@utils/jwt.ts';
-import { RedisClient } from '@utils/redisClient.ts';
-import { Redis } from '../deps.ts';
 
 describe("JSON Web Token Utility Unit Tests", () => {
-
-    let redisClient: Redis;
-    beforeAll(async () => {
-        redisClient = await RedisClient.getClient();
-    })
-
 
     it("Should generate CryptoKey", async () => {
         const key = await jwt.generateKey();
@@ -19,32 +11,13 @@ describe("JSON Web Token Utility Unit Tests", () => {
         if (!isKey) fail("Key is not an instance of CryptoKey");
     })
 
-    it("Should export CryptoKey", async () => {
-
-        await jwt.exportKey();
-
-        const jwtKey = await redisClient.get(jwt.redisKey);
-
-        expect(jwtKey).toBeDefined();
-
-        await redisClient.del(jwt.redisKey);
-
-    })
-
     it("It should set the exported CyrptoKey to the class key variable", async () => {
 
         await jwt.exportKey();
-
         await jwt.setKey();
 
-        const jwtKey = await redisClient.get(jwt.redisKey);
-
-        expect(jwtKey).toBeDefined();
         expect(jwt.key).toBeDefined();
-
         expect(jwt.key).toBeInstanceOf(CryptoKey);
-
-        await redisClient.del(jwt.redisKey);
 
     })
 
@@ -72,12 +45,6 @@ describe("JSON Web Token Utility Unit Tests", () => {
             equal(payload, decodedPayload);
         })
 
-        afterAll(async () => {
-            await redisClient.del(jwt.redisKey);
-        })
-
     })
-
-    afterAll(() => RedisClient.closeClient());
 
 })

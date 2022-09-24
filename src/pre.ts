@@ -10,8 +10,8 @@ import logger from "@utils/logger.ts";
  * I'd like to use Redis because it's fast and easy to use.
  */
 await jwt.exportKey()
-    .then(() => {
-        logger.success(`🔑 JWT KEY INITIALIZED IN REDIS 🚀`);
+    .then((jwtKey) => {
+        logger.success(`🔑 YOUR JWT KEY: ${jwtKey}`);
         Deno.exit(0);
     })
     .catch((error) => {

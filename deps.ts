@@ -12,10 +12,6 @@ export type { RouteParams, RouterContext } from "https://deno.land/x/oak@v11.1.0
 // Populate environment variables from .env file
 export { configAsync } from 'https://deno.land/x/dotenv@v3.2.0/mod.ts';
 
-// Redis Client
-export { connect as connectRedis } from 'https://deno.land/x/redis@v0.26.0/mod.ts';
-export type { Redis } from 'https://deno.land/x/redis@v0.26.0/mod.ts';
-
 // Logger
 export { ConsoleTransport, Format, Houston, LogLevel, LogLevelDisplay, FileTransport, TextPrefix, Color, TimeFormat } from 'https://deno.land/x/houston@1.0.0/mod.ts';
 
