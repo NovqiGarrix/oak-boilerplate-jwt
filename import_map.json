@@ -6,6 +6,7 @@
         "@middlewares/": "./src/middlewares/",
         "@controllers/": "./src/controllers/",
         "@services/": "./src/services/",
+        "@models/": "./src/models/",
         "@routers/": "./src/routers/",
         "@utils/": "./src/utils/",
         "@testDeps": "./tests/test.deps.ts"
