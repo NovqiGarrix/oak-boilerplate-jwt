@@ -86,9 +86,10 @@ class JsonWebToken {
     async verify<T>(jwt: string): Promise<T | null> {
         if (!this.key) await this.setKey();
         const { _aud, _iat, _iss, _jti, _nbf, _sub, exp, ...payload } = await verifyJWT(jwt, this.key!);
-        const now = Date.now();
 
+        const now = Date.now();
         if (now >= (exp ?? Date.now())) return null;
+
         return payload as unknown as T;
     }
 }

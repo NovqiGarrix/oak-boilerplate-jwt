@@ -34,10 +34,12 @@ app.addEventListener("listen", ({ hostname, port, serverType }) => {
     logger.info(`Listening on ${hostname}:${port} with ${serverType} SERVER`.toUpperCase());
 
     logger.info(`SETTING UP JWT KEY`);
-    jwt.setKey().catch((error) => {
-        logger.error(error.message);
-        Deno.exit(1);
-    });
+    jwt.setKey()
+        .then(() => logger.info(`JWT KEY IS SET UP!`))
+        .catch((error) => {
+            logger.error(error.message);
+            Deno.exit(1);
+        });
 })
 
 await app.listen({
